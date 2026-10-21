@@ -39,3 +39,31 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# Vercel
+.vercel/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+@'
+node_modules/
+.next/
+out/
+.env
+.env.*
+!.env.example
+'@ | Add-Content .gitignore
