@@ -2,16 +2,22 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Login() {
+  const router = useRouter();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
   async function handleLogin(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
     setMessage("");
+    setSuccess(false);
     setLoading(true);
 
     try {
@@ -20,7 +26,10 @@ export default function Login() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({
+          email,
+          password,
+        }),
       });
 
       const data = await response.json();
@@ -30,9 +39,14 @@ export default function Login() {
         return;
       }
 
-      setMessage(`Welcome, ${data.user.name}! Login successful.`);
+      setSuccess(true);
+      setMessage("Login successful! Redirecting to dashboard...");
+
       setPassword("");
-    } catch {
+
+      router.push("/dashboard");
+    } catch (error) {
+      console.error("Login error:", error);
       setMessage("Server error. Please try again.");
     } finally {
       setLoading(false);
@@ -40,50 +54,89 @@ export default function Login() {
   }
 
   return (
-    <div className="max-w-md mx-auto mt-20 p-6">
-      <h1 className="text-3xl font-bold mb-5">Login</h1>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+      <div className="w-full max-w-md rounded-xl bg-white p-8 shadow-lg">
+        <h1 className="text-3xl font-bold mb-2 text-center">
+          Login
+        </h1>
 
-      <form onSubmit={handleLogin}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="border w-full p-3 mb-4"
-          required
-        />
+        <p className="text-gray-500 text-center mb-6">
+          Welcome back to AI Call Assistant
+        </p>
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="border w-full p-3 mb-4"
-          required
-        />
+        <form onSubmit={handleLogin} className="space-y-5">
+          <div>
+            <label
+              htmlFor="email"
+              className="block font-medium mb-1"
+            >
+              Email Address
+            </label>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-blue-600 text-white w-full p-3 rounded disabled:bg-gray-400"
-        >
-          {loading ? "Logging in..." : "Login"}
-        </button>
+            <input
+              id="email"
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="border border-gray-300 w-full p-3 rounded-lg"
+              autoComplete="email"
+              required
+            />
+          </div>
 
-        {message && (
-          <p className="mt-4 text-sm" role="status">
-            {message}
-          </p>
-        )}
-      </form>
+          <div>
+            <label
+              htmlFor="password"
+              className="block font-medium mb-1"
+            >
+              Password
+            </label>
 
-      <p className="mt-4">
-        Don&apos;t have an account?{" "}
-        <a href="/signup" className="text-blue-600 underline">
-          Signup
-        </a>
-      </p>
+            <input
+              id="password"
+              type="password"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="border border-gray-300 w-full p-3 rounded-lg"
+              autoComplete="current-password"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="bg-blue-600 hover:bg-blue-700 text-white w-full p-3 rounded-lg font-semibold disabled:bg-gray-400"
+          >
+            {loading ? "Logging in..." : "Login"}
+          </button>
+
+          {message && (
+            <p
+              role="status"
+              className={`text-center text-sm ${
+                success ? "text-green-600" : "text-red-600"
+              }`}
+            >
+              {message}
+            </p>
+          )}
+        </form>
+
+        <p className="mt-6 text-center text-sm text-gray-500">
+          Don&apos;t have an account?{" "}
+          <a
+            href="/signup"
+            className="text-blue-600 font-semibold hover:underline"
+          >
+            Signup
+          </a>
+        </p>
+      </div>
     </div>
   );
 }
+
 

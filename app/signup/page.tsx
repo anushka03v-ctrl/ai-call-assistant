@@ -2,8 +2,11 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Signup() {
+  const router = useRouter();
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -13,6 +16,7 @@ export default function Signup() {
 
   async function handleSignup(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
     setMessage("");
     setSuccess(false);
     setLoading(true);
@@ -38,12 +42,15 @@ export default function Signup() {
       }
 
       setSuccess(true);
-      setMessage("Account created successfully! You can now log in.");
+      setMessage("Account created successfully! Redirecting to login...");
 
       setName("");
       setEmail("");
       setPassword("");
-    } catch {
+
+      router.push("/login");
+    } catch (error) {
+      console.error("Signup error:", error);
       setMessage("Server error. Please try again.");
     } finally {
       setLoading(false);
@@ -66,6 +73,7 @@ export default function Signup() {
             <label htmlFor="name" className="mb-1 block font-medium">
               Full Name
             </label>
+
             <input
               id="name"
               type="text"
@@ -81,6 +89,7 @@ export default function Signup() {
             <label htmlFor="email" className="mb-1 block font-medium">
               Email Address
             </label>
+
             <input
               id="email"
               type="email"
@@ -96,6 +105,7 @@ export default function Signup() {
             <label htmlFor="password" className="mb-1 block font-medium">
               Password
             </label>
+
             <input
               id="password"
               type="password"
