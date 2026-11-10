@@ -1,8 +1,8 @@
-
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import connectDB from "@/lib/mongodb";
 import User from "@/models/User";
+import { createToken } from "@/lib/auth";
 
 export async function POST(request: Request) {
   try {
@@ -45,7 +45,11 @@ export async function POST(request: Request) {
       );
     }
 
-    return NextResponse.json({
+    // Create JWT token
+    const token = await createToken(user._id.toString());
+
+    // Send response and set secure cookie
+    const response = NextResponse.json({
       message: "Login successful!",
       user: {
         id: user._id.toString(),
@@ -53,6 +57,16 @@ export async function POST(request: Request) {
         email: user.email,
       },
     });
+
+    response.cookies.set("auth_token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7,
+    });
+
+    return response;
   } catch (error) {
     console.error("Login error:", error);
 
